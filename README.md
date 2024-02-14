@@ -1,2 +1,2 @@
 # Questionario
- Sistema para gerar questoes a partir de um texto
+ Sistema para gerar questoes a partir de um texto utilizando IA.
