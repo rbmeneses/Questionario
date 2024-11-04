@@ -1,5 +1,7 @@
 # Questionario
- Sistema para gerar questoes a partir de um texto utilizando IA treinada localmente Estrutura do Projeto O projeto será estruturado da seguinte maneira:
+ Sistema para gerar questoes a partir de um texto utilizando IA treinada localmente 
+ 
+ Estrutura do Projeto O projeto será estruturado da seguinte maneira:
 
 ├── Escolar1.1.py # Backend Flask para lidar com as requisições ├── templates/ │ └── index.html # Frontend HTML e JavaScript
 
