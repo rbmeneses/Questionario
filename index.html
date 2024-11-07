@@ -57,7 +57,7 @@
         button:hover {
             background-color: #45a049;
         }
-        #resultado {
+        #resultado, #loading {
             margin-top: 15px;
             text-align: center;
             color: #333;
@@ -69,6 +69,22 @@
         }
         #resultado a:hover {
             text-decoration: underline;
+        }
+        /* Estilo da barra de progresso */
+        #progress-container {
+            display: none;
+            margin-top: 20px;
+            background-color: #f3f3f3;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        #progress-bar {
+            width: 0;
+            height: 20px;
+            background-color: #4CAF50;
+            text-align: center;
+            color: white;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -103,12 +119,34 @@
             <button type="submit">Gerar Avaliação</button>
         </form>
 
+        <div id="progress-container">
+            <div id="progress-bar">0%</div>
+        </div>
+
         <div id="resultado"></div>
     </div>
 
     <script>
         document.getElementById('avaliacaoForm').addEventListener('submit', function(event) {
             event.preventDefault();
+
+            // Exibir barra de progresso e resetá-la para 0%
+            document.getElementById('progress-container').style.display = 'block';
+            let progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = '0%';
+            progressBar.innerText = '0%';
+
+            // Função para atualizar a barra de progresso
+            let progress = 0;
+            const interval = setInterval(() => {
+                if (progress >= 95) {
+                    clearInterval(interval); // A barra chega a 95% enquanto espera a resposta do servidor
+                } else {
+                    progress += 5;
+                    progressBar.style.width = progress + '%';
+                    progressBar.innerText = progress + '%';
+                }
+            }, 3000);
 
             const questoes = document.getElementById('questoes').value;
             const nivel_dificuldade = document.getElementById('nivel_dificuldade').value;
@@ -133,6 +171,11 @@
             })
             .then(response => response.json())
             .then(data => {
+                clearInterval(interval); // Parar a barra de progresso quando a resposta chega
+                progressBar.style.width = '100%';
+                progressBar.innerText = '100%';
+                
+                // Exibir mensagem de sucesso e link de download
                 document.getElementById('resultado').innerText = data.message;
                 if (data.file_path) {
                     const link = document.createElement('a');
@@ -143,6 +186,8 @@
                 }
             })
             .catch(error => {
+                clearInterval(interval);
+                progressBar.style.width = '0%'; // Resetar barra em caso de erro
                 console.error('Erro:', error);
                 document.getElementById('resultado').innerText = 'Ocorreu um erro ao gerar a avaliação.';
             });
