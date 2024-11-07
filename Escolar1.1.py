@@ -10,7 +10,7 @@ ANYTHING_LLM_URL = "http://localhost:3001/api/v1/workspace/robot/chat"
 AUTH_TOKEN = "Y0S7Z8X-5P84THA-G7EQBD1-ZTFN6CT"  # Token de autenticação fornecido
 
 # Diretório para salvar os arquivos gerados
-OUTPUT_DIR = os.path.join(os.getcwd(), 'output')
+OUTPUT_DIR = os.path.join(os.getcwd(), 'c:\\temp\\output')
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 def get_response_from_anything_llm(prompt, session_id="identifier-to-partition-chats-by-external-id"):
@@ -53,19 +53,29 @@ def gerar_avaliacao():
     tema = data['tema']
     texto_exemplo = data['texto_exemplo']
     formato_saida = data['formato_saida']
+    tipo_questao = data['tipo_questao']  # Captura o tipo de questão (discursiva ou múltipla escolha)
 
-    prompt = (f"Preciso de uma lista de {questoes} questões objetivas com alternativas (A, B, C, D, E) "
-              f"para testar a compreensão sobre o tema: {tema}. "
-              f"Crie perguntas de múltipla escolha com base no seguinte texto: {texto_exemplo}. "
-              f"Inclua o gabarito com as respostas corretas. As perguntas devem ser de nível {nivel_dificuldade}.")
+    # Define o prompt com base no tipo de questão
+    if tipo_questao == "multipla_escolha":
+        prompt = (f"Preciso de uma lista de {questoes} questões objetivas com alternativas (A, B, C, D, E) "
+                  f"para testar a compreensão sobre o tema: {tema}. "
+                  f"Crie perguntas de múltipla escolha com base no seguinte texto: {texto_exemplo}. "
+                  f"Inclua o gabarito com as respostas corretas. As perguntas devem ser de nível {nivel_dificuldade}.")
+    elif tipo_questao == "discursiva":
+        prompt = (f"Preciso de uma lista de {questoes} questões discursivas "
+                  f"para testar a compreensão sobre o tema: {tema}. "
+                  f"As perguntas devem ser baseadas no seguinte texto: {texto_exemplo}. "
+                  f"Crie questões abertas que incentivem respostas aprofundadas. As perguntas devem ser de nível {nivel_dificuldade}.")
 
+    # Obtém a resposta da API usando o prompt ajustado
     output = get_response_from_anything_llm(prompt)
     
+    # Salva a avaliação no formato escolhido
     if formato_saida.lower() == "pdf":
         file_path = os.path.join(OUTPUT_DIR, "avaliacao.pdf")
         pdfkit.from_string(output, file_path)
     else:
-        file_path = os.path.join(OUTPUT_DIR, "avaliacao.txt")
+        file_path = os.path.join(OUTPUT_DIR, "avaliacao.docx")
         with open(file_path, "w") as f:
             f.write(output)
     
@@ -76,4 +86,4 @@ def download_file(filename):
     return send_from_directory(OUTPUT_DIR, filename)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
